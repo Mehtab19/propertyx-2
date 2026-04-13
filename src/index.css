@@ -1,0 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Premium Real Estate Color Palette */
+    --background: 210 20% 98%;
+    --foreground: 220 30% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 10%;
+
+    /* Deep Navy - Trust & Stability */
+    --primary: 220 60% 20%;
+    --primary-foreground: 40 35% 95%;
+
+    /* Warm Cream Secondary */
+    --secondary: 40 30% 96%;
+    --secondary-foreground: 220 30% 15%;
+
+    /* Muted Navy Tones */
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Gold Accent - Premium Feel */
+    --accent: 38 80% 55%;
+    --accent-foreground: 220 60% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 38 80% 55%;
+
+    --radius: 0.625rem;
+
+    /* Custom Premium Colors */
+    --navy: 220 60% 20%;
+    --navy-light: 220 45% 35%;
+    --navy-dark: 220 65% 12%;
+    --gold: 38 80% 55%;
+    --gold-light: 40 85% 70%;
+    --gold-dark: 35 75% 42%;
+    --cream: 40 35% 95%;
+    --cream-dark: 38 25% 88%;
+    --success: 152 60% 42%;
+    --success-foreground: 0 0% 100%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 60% 20%) 0%, hsl(220 45% 30%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38 80% 55%) 0%, hsl(35 75% 45%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(220 60% 20% / 0.95) 0%, hsl(220 60% 20% / 0.7) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 30% 98%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px hsl(220 30% 10% / 0.04), 0 1px 2px hsl(220 30% 10% / 0.06);
+    --shadow-md: 0 4px 12px hsl(220 30% 10% / 0.08), 0 2px 4px hsl(220 30% 10% / 0.04);
+    --shadow-lg: 0 12px 40px hsl(220 30% 10% / 0.12), 0 4px 12px hsl(220 30% 10% / 0.06);
+    --shadow-gold: 0 4px 20px hsl(38 80% 55% / 0.25);
+    --shadow-card: 0 2px 16px hsl(220 30% 10% / 0.06);
+
+    /* Sidebar */
+    --sidebar-background: 220 60% 20%;
+    --sidebar-foreground: 40 35% 95%;
+    --sidebar-primary: 38 80% 55%;
+    --sidebar-primary-foreground: 220 60% 15%;
+    --sidebar-accent: 220 45% 28%;
+    --sidebar-accent-foreground: 40 35% 95%;
+    --sidebar-border: 220 50% 30%;
+    --sidebar-ring: 38 80% 55%;
+  }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 40 25% 95%;
+
+    --card: 220 30% 12%;
+    --card-foreground: 40 25% 95%;
+
+    --popover: 220 30% 12%;
+    --popover-foreground: 40 25% 95%;
+
+    --primary: 38 80% 55%;
+    --primary-foreground: 220 60% 12%;
+
+    --secondary: 220 30% 18%;
+    --secondary-foreground: 40 25% 90%;
+
+    --muted: 220 25% 20%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 38 80% 55%;
+    --accent-foreground: 220 60% 12%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 25% 22%;
+    --input: 220 25% 22%;
+    --ring: 38 80% 55%;
+
+    --navy: 220 45% 35%;
+    --navy-light: 220 40% 50%;
+    --navy-dark: 220 50% 8%;
+    --gold: 38 80% 55%;
+    --gold-light: 40 85% 70%;
+    --gold-dark: 35 75% 42%;
+
+    --sidebar-background: 220 30% 10%;
+    --sidebar-foreground: 40 25% 95%;
+    --sidebar-primary: 38 80% 55%;
+    --sidebar-primary-foreground: 220 60% 12%;
+    --sidebar-accent: 220 25% 18%;
+    --sidebar-accent-foreground: 40 25% 95%;
+    --sidebar-border: 220 25% 20%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+
+  .font-sans {
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-gold {
+    background: var(--gradient-gold);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-premium {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-gold);
+  }
+
+  /* Smooth transitions */
+  .transition-premium {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply backdrop-blur-md bg-white/80 dark:bg-navy-dark/80;
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-premium::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar-track {
+    @apply bg-muted rounded-full;
+  }
+
+  .scrollbar-premium::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50;
+  }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(38 80% 55% / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px hsl(38 80% 55% / 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-gold {
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, hsl(38 80% 55% / 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+}
