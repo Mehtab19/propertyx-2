@@ -1,1 +1,2 @@
-export { default } from '@/components/layout/Navbar';
+import { Navbar } from '@/components/layout/Navbar';
+export default Navbar;

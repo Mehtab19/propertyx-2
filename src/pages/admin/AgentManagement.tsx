@@ -57,16 +57,14 @@ interface Agent {
   license_number: string | null;
   verified: boolean;
   rating: number | null;
-  total_reviews: number | null;
-  areas_served: string[];
-  specialization: string[];
+  areas_covered: string[];
+  specializations: string[];
   created_at: string;
   updated_at: string;
   profile?: {
     full_name: string | null;
     email: string | null;
     phone: string | null;
-    status: string;
   };
 }
 
@@ -98,19 +96,17 @@ const AgentManagement = () => {
 
       // Fetch associated profiles
       const userIds = agentsData?.map(a => a.user_id) || [];
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, email, phone, status')
-        .in('user_id', userIds);
-
-      if (profilesError) throw profilesError;
+        .select('id, full_name, email, phone')
+        .in('id', userIds);
 
       const agentsWithProfiles = (agentsData || []).map(agent => ({
         ...agent,
-        areas_served: agent.areas_served || [],
-        specialization: agent.specialization || [],
-        profile: profiles?.find(p => p.user_id === agent.user_id) || undefined,
-      }));
+        areas_covered: agent.areas_covered || [],
+        specializations: agent.specializations || [],
+        profile: profiles?.find((p: any) => p.id === agent.user_id) || undefined,
+      })) as Agent[];
 
       setAgents(agentsWithProfiles);
     } catch (error) {

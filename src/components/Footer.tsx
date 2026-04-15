@@ -1,1 +1,2 @@
-export { default } from '@/components/layout/Footer';
+import { Footer } from '@/components/layout/Footer';
+export default Footer;
