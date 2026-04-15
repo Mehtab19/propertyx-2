@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
+import DubaiLocationCards from "@/components/DubaiLocationCards";
 
 // Mock data for featured properties
 const featuredProperties = [
@@ -183,16 +184,20 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 transform translate-y-1/2 px-4">
-          <div className="container mx-auto">
-            <SearchFilters variant="hero" onSearch={() => navigate("/properties")} />
-          </div>
+      </section>
+
+      {/* Explore UAE Section */}
+      <DubaiLocationCards />
+
+      {/* Search Bar */}
+      <section className="py-12 bg-secondary">
+        <div className="container mx-auto px-4">
+          <SearchFilters variant="hero" onSearch={() => navigate("/properties")} />
         </div>
       </section>
 
       {/* Featured Properties */}
-      <section className="pt-32 pb-20 bg-secondary">
+      <section className="pt-12 pb-20 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <Badge className="bg-gold/10 text-gold-dark border-0 mb-4">

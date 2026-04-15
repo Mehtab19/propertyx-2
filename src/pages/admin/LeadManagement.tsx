@@ -1,486 +1,173 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Users, Phone, Mail, Calendar, MessageSquare, Clock, 
-  CheckCircle, XCircle, ArrowRight, Filter, Search,
-  AlertCircle, TrendingUp, Home
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useState, useEffect, useMemo } from 'react';
+import { Users, MessageSquare, Search, Filter } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import DashboardLayout, { adminNavItems } from '@/components/dashboard/DashboardLayout';
 import { TableSkeleton } from '@/components/admin/TableSkeleton';
 import { EmptyState } from '@/components/admin/EmptyState';
 
 interface Lead {
   id: string;
-  lead_type: string;
+  name: string;
+  email: string;
+  phone: string | null;
   status: string;
-  priority: string | null;
-  ai_summary: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
+  source: string | null;
+  message: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  user_id: string | null;
   agent_id: string | null;
   property_id: string | null;
 }
 
 const statusColors: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  qualified: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  converted: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  lost: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-};
-
-const priorityColors: Record<string, string> = {
-  high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  low: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  new: 'bg-blue-100 text-blue-800',
+  contacted: 'bg-yellow-100 text-yellow-800',
+  qualified: 'bg-purple-100 text-purple-800',
+  negotiating: 'bg-orange-100 text-orange-800',
+  closed: 'bg-green-100 text-green-800',
+  lost: 'bg-red-100 text-red-800',
 };
 
 const LeadManagement = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showMessageModal, setShowMessageModal] = useState(false);
-  const [messageText, setMessageText] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchLeads();
-  }, [statusFilter]);
+  useEffect(() => { fetchLeads(); }, [statusFilter]);
 
   const fetchLeads = async () => {
     setIsLoading(true);
     try {
       let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
-      
       if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+        query = query.eq('status', statusFilter as any);
       }
-
       const { data, error } = await query;
-
       if (error) throw error;
-      setLeads(data || []);
+      setLeads((data || []) as Lead[]);
     } catch (error) {
-      console.error('Error fetching leads:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to fetch leads',
-      });
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to fetch leads' });
     } finally {
       setIsLoading(false);
     }
   };
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
-    setIsUpdating(true);
     try {
-      const { error } = await supabase
-        .from('leads')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', leadId);
-
+      const { error } = await supabase.from('leads').update({ status: newStatus as any }).eq('id', leadId);
       if (error) throw error;
-
-      // Log activity
-      await supabase.from('activity_logs').insert({
-        user_id: user?.id || '',
-        action: 'lead_status_update',
-        entity_type: 'lead',
-        entity_id: leadId,
-        details: { old_status: selectedLead?.status, new_status: newStatus },
-      });
-
-      toast({
-        title: 'Status Updated',
-        description: `Lead status changed to ${newStatus}`,
-      });
-
+      toast({ title: 'Status Updated', description: `Lead status changed to ${newStatus}` });
       fetchLeads();
       setShowDetailsModal(false);
     } catch (error) {
-      console.error('Error updating lead:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: 'Unable to update lead status',
-      });
-    } finally {
-      setIsUpdating(false);
+      toast({ variant: 'destructive', title: 'Update Failed', description: 'Unable to update lead status' });
     }
   };
 
-  const sendMessage = async () => {
-    if (!selectedLead || !messageText.trim()) return;
-
-    setIsUpdating(true);
-    try {
-      // Update lead notes with message
-      const currentNotes = selectedLead.notes || '';
-      const newNote = `\n\n---\n**Agent Message (${new Date().toLocaleString()}):**\n${messageText}`;
-      
-      const { error } = await supabase
-        .from('leads')
-        .update({ 
-          notes: currentNotes + newNote,
-          status: selectedLead.status === 'new' ? 'contacted' : selectedLead.status,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', selectedLead.id);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Message Sent',
-        description: 'Your message has been recorded and the user will be notified.',
-      });
-
-      setMessageText('');
-      setShowMessageModal(false);
-      fetchLeads();
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to Send',
-        description: 'Unable to send message',
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const filteredLeads = leads.filter(lead => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      lead.lead_type.toLowerCase().includes(query) ||
-      lead.ai_summary?.toLowerCase().includes(query) ||
-      lead.notes?.toLowerCase().includes(query)
-    );
-  });
+  const filteredLeads = useMemo(() => {
+    if (!searchQuery) return leads;
+    const q = searchQuery.toLowerCase();
+    return leads.filter(l => l.name.toLowerCase().includes(q) || l.email.toLowerCase().includes(q));
+  }, [leads, searchQuery]);
 
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.status === 'new').length,
     contacted: leads.filter(l => l.status === 'contacted').length,
-    converted: leads.filter(l => l.status === 'converted').length,
+    qualified: leads.filter(l => l.status === 'qualified').length,
   };
 
-  const navItems = [
-    { label: 'Dashboard', href: '/admin/dashboard', icon: Home },
-    { label: 'Lead Management', href: '/admin/dashboard/leads', icon: MessageSquare },
-    { label: 'User Management', href: '/admin/dashboard/users', icon: Users },
-  ];
-
   return (
-    <DashboardLayout title="Lead Management" navItems={navItems}>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Lead Management</h1>
-          <p className="text-muted-foreground">Manage AI handoffs and user requests</p>
+    <DashboardLayout title="Lead Management" navItems={adminNavItems}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">{stats.total}</p><p className="text-sm text-muted-foreground">Total Leads</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">{stats.new}</p><p className="text-sm text-muted-foreground">New</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">{stats.contacted}</p><p className="text-sm text-muted-foreground">Contacted</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><p className="text-2xl font-bold">{stats.qualified}</p><p className="text-sm text-muted-foreground">Qualified</p></CardContent></Card>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border">
+        <div className="p-4 border-b border-border flex flex-wrap gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Search leads..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="contacted">Contacted</SelectItem>
+              <SelectItem value="qualified">Qualified</SelectItem>
+              <SelectItem value="negotiating">Negotiating</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+              <SelectItem value="lost">Lost</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Leads</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                </div>
-                <Users className="h-8 w-8 text-primary opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">New Leads</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.new}</p>
-                </div>
-                <AlertCircle className="h-8 w-8 text-blue-500 opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Contacted</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.contacted}</p>
-                </div>
-                <Phone className="h-8 w-8 text-yellow-500 opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Converted</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.converted}</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-500 opacity-80" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search leads..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="contacted">Contacted</SelectItem>
-                  <SelectItem value="qualified">Qualified</SelectItem>
-                  <SelectItem value="converted">Converted</SelectItem>
-                  <SelectItem value="lost">Lost</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Leads List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Leads ({filteredLeads.length})</CardTitle>
-            <CardDescription>Click on a lead to view details and take action</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <TableSkeleton />
-            ) : filteredLeads.length === 0 ? (
-              <EmptyState
-                icon={Users}
-                title="No leads found"
-                description="Leads will appear here when users request agent assistance"
-              />
-            ) : (
-              <div className="space-y-3">
-                {filteredLeads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedLead(lead);
-                      setShowDetailsModal(true);
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium capitalize">{lead.lead_type.replace('_', ' ')}</span>
-                          <Badge className={statusColors[lead.status] || 'bg-gray-100'}>
-                            {lead.status}
-                          </Badge>
-                          {lead.priority && (
-                            <Badge variant="outline" className={priorityColors[lead.priority]}>
-                              {lead.priority} priority
-                            </Badge>
-                          )}
-                        </div>
-                        {lead.ai_summary && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {lead.ai_summary.slice(0, 150)}...
-                          </p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {new Date(lead.created_at).toLocaleDateString()}
-                          </span>
-                          <span>ID: {lead.id.slice(0, 8)}</span>
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
+        <div className="p-4">
+          {isLoading ? <TableSkeleton rows={5} columns={5} /> : filteredLeads.length === 0 ? (
+            <EmptyState icon={Users} title="No leads found" description="No leads match your filters" />
+          ) : (
+            <div className="space-y-3">
+              {filteredLeads.map(lead => (
+                <div key={lead.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted"
+                  onClick={() => { setSelectedLead(lead); setShowDetailsModal(true); }}>
+                  <div>
+                    <p className="font-medium text-foreground">{lead.name}</p>
+                    <p className="text-sm text-muted-foreground">{lead.email}</p>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <Badge className={statusColors[lead.status] || 'bg-muted'}>{lead.status}</Badge>
+                    <span className="text-xs text-muted-foreground">{lead.created_at ? new Date(lead.created_at).toLocaleDateString() : ''}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Lead Details</DialogTitle></DialogHeader>
+          {selectedLead && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><p className="text-muted-foreground">Name</p><p className="font-medium">{selectedLead.name}</p></div>
+                <div><p className="text-muted-foreground">Email</p><p className="font-medium">{selectedLead.email}</p></div>
+                <div><p className="text-muted-foreground">Phone</p><p className="font-medium">{selectedLead.phone || '-'}</p></div>
+                <div><p className="text-muted-foreground">Source</p><p className="font-medium">{selectedLead.source || '-'}</p></div>
+              </div>
+              {selectedLead.message && (
+                <div><p className="text-muted-foreground text-sm">Message</p><p className="text-sm mt-1">{selectedLead.message}</p></div>
+              )}
+              <div className="flex gap-2 flex-wrap pt-4 border-t">
+                {['contacted', 'qualified', 'negotiating', 'closed', 'lost'].map(s => (
+                  <Button key={s} size="sm" variant={selectedLead.status === s ? 'default' : 'outline'}
+                    onClick={() => updateLeadStatus(selectedLead.id, s)}>{s}</Button>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Lead Details Modal */}
-        <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                Lead Details
-                {selectedLead && (
-                  <Badge className={statusColors[selectedLead.status]}>
-                    {selectedLead.status}
-                  </Badge>
-                )}
-              </DialogTitle>
-              <DialogDescription>
-                Review AI summary and take action
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedLead && (
-              <div className="space-y-6">
-                {/* AI Summary */}
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    AI Summary
-                  </h4>
-                  <div className="text-sm whitespace-pre-wrap">
-                    {selectedLead.ai_summary || 'No AI summary available'}
-                  </div>
-                </div>
-
-                {/* Contact Notes */}
-                {selectedLead.notes && (
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Contact Information & Notes</h4>
-                    <div className="text-sm whitespace-pre-wrap">
-                      {selectedLead.notes}
-                    </div>
-                  </div>
-                )}
-
-                {/* Meta Info */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Lead Type:</span>
-                    <span className="ml-2 capitalize">{selectedLead.lead_type.replace('_', ' ')}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Priority:</span>
-                    <span className="ml-2 capitalize">{selectedLead.priority || 'Not set'}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Created:</span>
-                    <span className="ml-2">{new Date(selectedLead.created_at).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Updated:</span>
-                    <span className="ml-2">{new Date(selectedLead.updated_at).toLocaleString()}</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-wrap gap-2 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowDetailsModal(false);
-                      setShowMessageModal(true);
-                    }}
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Send Message
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/schedule-meeting')}
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Schedule Meeting
-                  </Button>
-                  
-                  <div className="flex-1" />
-                  
-                  {selectedLead.status !== 'converted' && (
-                    <Button
-                      variant="default"
-                      onClick={() => updateLeadStatus(selectedLead.id, 'converted')}
-                      disabled={isUpdating}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark Converted
-                    </Button>
-                  )}
-                  {selectedLead.status !== 'lost' && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => updateLeadStatus(selectedLead.id, 'lost')}
-                      disabled={isUpdating}
-                    >
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Mark Lost
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Message Modal */}
-        <Dialog open={showMessageModal} onOpenChange={setShowMessageModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Send Message to Lead</DialogTitle>
-              <DialogDescription>
-                This message will be recorded and the user will be notified
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Message</Label>
-                <Textarea
-                  placeholder="Type your message..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowMessageModal(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={sendMessage} disabled={isUpdating || !messageText.trim()}>
-                  {isUpdating ? 'Sending...' : 'Send Message'}
-                </Button>
-              </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
