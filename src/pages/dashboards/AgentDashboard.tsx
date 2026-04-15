@@ -33,7 +33,7 @@ const BrokerDashboard = () => {
   ];
 
   return (
-    <DashboardLayout title="Broker Dashboard" navItems={brokerNavItems}>
+    <DashboardLayout title="Agent Dashboard" navItems={agentNavItems}>
       <div className="space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
