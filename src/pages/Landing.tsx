@@ -204,7 +204,7 @@ export default function Landing() {
               Featured Listings
             </Badge>
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Premium Properties
+              Verified & Premium Properties
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Hand-picked properties with exceptional value and investment potential
