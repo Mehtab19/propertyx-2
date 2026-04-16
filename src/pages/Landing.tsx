@@ -18,6 +18,7 @@ import {
 import heroImage from "@/assets/hero-living-room.jpg";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
 import AboutSection from "@/components/AboutSection";
+import ContactSection from "@/components/ContactSection";
 
 // Mock data for featured properties
 const featuredProperties = [
@@ -236,6 +237,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Contact Section */}
+      <ContactSection />
 
       {/* CTA Section */}
       <section className="py-20">
