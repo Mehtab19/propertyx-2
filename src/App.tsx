@@ -19,6 +19,8 @@ import Admin from "./pages/Admin";
 import SavedProperties from "./pages/SavedProperties";
 import Portfolio from "./pages/Portfolio";
 import NotFound from "./pages/NotFound";
+import StatePage from "./pages/StatePage";
+import ScheduleMeeting from "./pages/ScheduleMeeting";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/saved" element={<SavedProperties />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/state/:stateName" element={<StatePage />} />
+            <Route path="/schedule-meeting" element={<ScheduleMeeting />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
