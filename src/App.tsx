@@ -19,6 +19,8 @@ import Admin from "./pages/Admin";
 import SavedProperties from "./pages/SavedProperties";
 import Portfolio from "./pages/Portfolio";
 import NotFound from "./pages/NotFound";
+import StatePage from "./pages/StatePage";
+import ScheduleMeeting from "./pages/ScheduleMeeting";
 
 const queryClient = new QueryClient();
 
