@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { SearchFilters } from "@/components/property/SearchFilters";
-import { PropertyCard } from "@/components/property/PropertyCard";
+import { PropertiesSection } from "@/components/PropertiesSection";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2,
