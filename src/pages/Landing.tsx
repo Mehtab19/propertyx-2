@@ -237,6 +237,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Contact Section */}
+      <ContactSection />
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
