@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
+import AboutSection from "@/components/AboutSection";
 
 // Mock data for featured properties
 const featuredProperties = [
