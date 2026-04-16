@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
+import AboutSection from "@/components/AboutSection";
 
 // Mock data for featured properties
 const featuredProperties = [
@@ -199,39 +200,8 @@ export default function Landing() {
       {/* Featured Properties */}
       <PropertiesSection />
 
-      {/* Role Selection */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              How Will You Use PropertyX?
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Select your role to get a personalized experience tailored to your needs
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roles.map((role, index) => (
-              <Link
-                key={role.title}
-                to={role.href}
-                className="group p-6 bg-card rounded-2xl shadow-card hover:shadow-lg transition-all duration-300 border border-transparent hover:border-gold/20 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <span className="text-4xl mb-4 block">{role.icon}</span>
-                <h3 className="font-display text-xl font-semibold text-foreground mb-2 group-hover:text-gold-dark transition-colors">
-                  {role.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">{role.description}</p>
-                <div className="mt-4 flex items-center text-sm font-medium text-gold-dark opacity-0 group-hover:opacity-100 transition-opacity">
-                  Get Started <ArrowRight className="h-4 w-4 ml-1" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* About Section */}
+      <AboutSection />
 
       {/* Features */}
       <section className="py-20 bg-primary text-primary-foreground">
