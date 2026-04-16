@@ -197,40 +197,7 @@ export default function Landing() {
       </section>
 
       {/* Featured Properties */}
-      <section className="pt-12 pb-20 bg-secondary">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge className="bg-gold/10 text-gold-dark border-0 mb-4">
-              Featured Listings
-            </Badge>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Verified & Premium Properties
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Hand-picked properties with exceptional value and investment potential
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-10">
-            {featuredProperties.map((property, index) => (
-              <div
-                key={property.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <PropertyCard {...property} />
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Button variant="outline" size="lg" onClick={() => navigate("/properties")}>
-              View All Properties
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </div>
-      </section>
+      <PropertiesSection />
 
       {/* Role Selection */}
       <section className="py-20">
