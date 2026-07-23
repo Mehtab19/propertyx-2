@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BreadcrumbNav } from "@/components/ui/breadcrumb-nav";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyCard } from "@/components/property/PropertyCard";
@@ -21,20 +22,44 @@ interface SearchFiltersState {
 
 const PAGE_SIZE = 12;
 
+const DEFAULT_FILTERS: SearchFiltersState = {
+  location: "",
+  propertyType: "all",
+  priceRange: "all",
+  bedrooms: "all",
+};
+
 export default function Properties() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read initial filters from URL (shareable/bookmarkable).
+  const initialFilters = useMemo<SearchFiltersState>(() => ({
+    location: searchParams.get("location") ?? "",
+    propertyType: searchParams.get("type") ?? "all",
+    priceRange: searchParams.get("price") ?? "all",
+    bedrooms: searchParams.get("beds") ?? "all",
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), []);
+
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
-  const [filters, setFilters] = useState<SearchFiltersState>({
-    location: "",
-    propertyType: "all",
-    priceRange: "all",
-    bedrooms: "all",
-  });
+  const [filters, setFilters] = useState<SearchFiltersState>(initialFilters);
   const { favoriteIds, toggleFavorite } = useFavorites();
+
+  // Sync filters -> URL query params.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.location.trim()) params.set("location", filters.location.trim());
+    if (filters.propertyType !== "all") params.set("type", filters.propertyType);
+    if (filters.priceRange !== "all") params.set("price", filters.priceRange);
+    if (filters.bedrooms !== "all") params.set("beds", filters.bedrooms);
+    setSearchParams(params, { replace: true });
+  }, [filters, setSearchParams]);
+
 
   useEffect(() => {
     const fetchProperties = async () => {
