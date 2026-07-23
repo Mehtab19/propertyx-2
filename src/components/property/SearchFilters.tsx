@@ -8,11 +8,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SearchFiltersProps {
   onSearch?: (filters: SearchFiltersState) => void;
   variant?: "hero" | "inline";
+  initialFilters?: Partial<SearchFiltersState>;
+  /** If true, pressing Search will not call onSearch until user clicks it. Defaults to false (live). */
+  submitOnly?: boolean;
 }
 
 export interface SearchFiltersState {
@@ -31,6 +35,7 @@ const propertyTypes = [
   { value: "studio", label: "Studio" },
   { value: "land", label: "Land" },
   { value: "commercial", label: "Commercial" },
+  { value: "office", label: "Office" },
 ];
 
 const priceRanges = [
@@ -44,6 +49,7 @@ const priceRanges = [
 
 const bedroomOptions = [
   { value: "all", label: "Any Beds" },
+  { value: "0", label: "Studio" },
   { value: "1", label: "1+ Bed" },
   { value: "2", label: "2+ Beds" },
   { value: "3", label: "3+ Beds" },
@@ -51,25 +57,78 @@ const bedroomOptions = [
   { value: "5", label: "5+ Beds" },
 ];
 
-export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersProps) {
-  const [filters, setFilters] = useState<SearchFiltersState>({
-    location: "",
-    propertyType: "all",
-    priceRange: "all",
-    bedrooms: "all",
-  });
+const DEFAULTS: SearchFiltersState = {
+  location: "",
+  propertyType: "all",
+  priceRange: "all",
+  bedrooms: "all",
+};
 
-  const handleSearch = () => {
-    onSearch?.(filters);
-  };
+export function SearchFilters({
+  onSearch,
+  variant = "inline",
+  initialFilters,
+  submitOnly = false,
+}: SearchFiltersProps) {
+  const listId = useId();
+  const [filters, setFilters] = useState<SearchFiltersState>({
+    ...DEFAULTS,
+    ...initialFilters,
+  });
+  const [locationOptions, setLocationOptions] = useState<string[]>([]);
+
+  // Keep in sync if parent's initialFilters change (e.g., URL params update).
+  useEffect(() => {
+    if (!initialFilters) return;
+    setFilters((prev) => ({ ...prev, ...initialFilters }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    initialFilters?.location,
+    initialFilters?.propertyType,
+    initialFilters?.priceRange,
+    initialFilters?.bedrooms,
+  ]);
+
+  // Fetch distinct locations for the autocomplete datalist.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("properties")
+        .select("location")
+        .eq("status", "available")
+        .limit(500);
+      if (cancelled || !data) return;
+      const unique = Array.from(
+        new Set(data.map((r: any) => (r.location as string)?.trim()).filter(Boolean))
+      ).sort();
+      setLocationOptions(unique);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const emit = (next: SearchFiltersState) => onSearch?.(next);
+
+  const handleSearch = () => emit(filters);
 
   const handleClear = () => {
-    const cleared: SearchFiltersState = { location: "", propertyType: "all", priceRange: "all", bedrooms: "all" };
-    setFilters(cleared);
-    onSearch?.(cleared);
+    setFilters(DEFAULTS);
+    emit(DEFAULTS);
   };
 
-  const hasFilters = filters.location.trim() || filters.propertyType !== "all" || filters.priceRange !== "all" || filters.bedrooms !== "all";
+  const clearLocation = () => {
+    const next = { ...filters, location: "" };
+    setFilters(next);
+    if (!submitOnly) emit(next);
+  };
+
+  const hasFilters =
+    filters.location.trim() ||
+    filters.propertyType !== "all" ||
+    filters.priceRange !== "all" ||
+    filters.bedrooms !== "all";
 
   const isHero = variant === "hero";
 
@@ -82,16 +141,33 @@ export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersPro
       }`}
     >
       <div className={`grid gap-3 ${isHero ? "lg:grid-cols-5" : "lg:grid-cols-5"}`}>
-        {/* Location Input */}
+        {/* Location Input with autocomplete + clear */}
         <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
+            list={listId}
             placeholder="Location..."
             value={filters.location}
             onChange={(e) => setFilters({ ...filters, location: e.target.value })}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="pl-10 h-12 bg-secondary border-0"
+            className="pl-10 pr-9 h-12 bg-secondary border-0"
+            aria-label="Search by location"
           />
+          <datalist id={listId}>
+            {locationOptions.map((loc) => (
+              <option key={loc} value={loc} />
+            ))}
+          </datalist>
+          {filters.location && (
+            <button
+              type="button"
+              onClick={clearLocation}
+              aria-label="Clear location"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Property Type */}
@@ -100,7 +176,7 @@ export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersPro
           onValueChange={(value) => {
             const next = { ...filters, propertyType: value };
             setFilters(next);
-            onSearch?.(next);
+            if (!submitOnly) emit(next);
           }}
         >
           <SelectTrigger className="h-12 bg-secondary border-0">
@@ -121,7 +197,7 @@ export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersPro
           onValueChange={(value) => {
             const next = { ...filters, priceRange: value };
             setFilters(next);
-            onSearch?.(next);
+            if (!submitOnly) emit(next);
           }}
         >
           <SelectTrigger className="h-12 bg-secondary border-0">
@@ -142,7 +218,7 @@ export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersPro
           onValueChange={(value) => {
             const next = { ...filters, bedrooms: value };
             setFilters(next);
-            onSearch?.(next);
+            if (!submitOnly) emit(next);
           }}
         >
           <SelectTrigger className="h-12 bg-secondary border-0">
@@ -169,7 +245,14 @@ export function SearchFilters({ onSearch, variant = "inline" }: SearchFiltersPro
             Search
           </Button>
           {hasFilters && (
-            <Button onClick={handleClear} variant="outline" size="icon" className="h-12 w-12 shrink-0">
+            <Button
+              onClick={handleClear}
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 shrink-0"
+              aria-label="Reset all filters"
+              title="Reset all filters"
+            >
               <X className="h-4 w-4" />
             </Button>
           )}
