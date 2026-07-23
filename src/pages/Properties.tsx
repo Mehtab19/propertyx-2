@@ -135,7 +135,7 @@ export default function Properties() {
           </div>
 
           <div className="mb-8">
-            <SearchFilters variant="inline" onSearch={setFilters} />
+            <SearchFilters variant="inline" initialFilters={filters} onSearch={setFilters} />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
