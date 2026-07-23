@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
+import HeroVideoBackground from "@/components/HeroVideoBackground";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
@@ -129,11 +130,7 @@ export default function Landing() {
       <section className="relative min-h-screen flex items-center">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Luxury property"
-            className="w-full h-full object-cover"
-          />
+          <HeroVideoBackground poster={heroImage} />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/60" />
         </div>
 
