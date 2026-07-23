@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
+import HeroVideoBackground from "@/components/HeroVideoBackground";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
