@@ -179,7 +179,7 @@ export default function Properties() {
           ) : properties.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">
               <p className="text-lg">No properties found matching your criteria.</p>
-              <Button variant="outline" className="mt-4" onClick={() => setFilters({ location: "", propertyType: "all", priceRange: "all", bedrooms: "all" })}>
+              <Button variant="outline" className="mt-4" onClick={() => setFilters(DEFAULT_FILTERS)}>
                 Clear Filters
               </Button>
             </div>
