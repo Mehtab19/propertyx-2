@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
 import HeroVideoBackground from "@/components/HeroVideoBackground";
+import heroVideoAsset from "../../public/videos/hero-bg.mp4.asset.json";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
