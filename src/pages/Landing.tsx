@@ -194,7 +194,19 @@ export default function Landing() {
       {/* Search Bar */}
       <section className="py-12 bg-secondary">
         <div className="container mx-auto px-4">
-          <SearchFilters variant="hero" onSearch={() => navigate("/properties")} />
+          <SearchFilters
+            variant="hero"
+            submitOnly
+            onSearch={(f) => {
+              const params = new URLSearchParams();
+              if (f.location.trim()) params.set("location", f.location.trim());
+              if (f.propertyType !== "all") params.set("type", f.propertyType);
+              if (f.priceRange !== "all") params.set("price", f.priceRange);
+              if (f.bedrooms !== "all") params.set("beds", f.bedrooms);
+              const qs = params.toString();
+              navigate(qs ? `/properties?${qs}` : "/properties");
+            }}
+          />
         </div>
       </section>
 
