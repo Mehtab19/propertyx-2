@@ -131,7 +131,7 @@ export default function Landing() {
       <section className="relative min-h-screen flex items-center">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <HeroVideoBackground poster={heroImage} />
+          <HeroVideoBackground poster={heroImage} mp4Src={heroVideoAsset.url} webmSrc={heroVideoAsset.url} />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/60" />
         </div>
 
