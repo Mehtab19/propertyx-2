@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { seedProperties } from '@/scripts/seedProperties';
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { SearchFilters } from "@/components/property/SearchFilters";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PropertiesSection } from "@/components/PropertiesSection";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,6 +17,8 @@ import {
   Star,
   CheckCircle2,
   Sparkles,
+  Search,
+  Handshake,
 } from "lucide-react";
 import heroImage from "@/assets/hero-living-room.jpg";
 import HeroVideoBackground from "@/components/HeroVideoBackground";
@@ -21,6 +26,7 @@ import heroVideoAsset from "../../public/videos/hero-bg.mp4.asset.json";
 import DubaiLocationCards from "@/components/DubaiLocationCards";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
+import MortgageCTASection from "@/components/MortgageCTASection";
 
 // Mock data for featured properties
 const featuredProperties = [
@@ -122,8 +128,41 @@ const roles = [
   },
 ];
 
+const dubaiAreas = [
+  'Downtown Dubai',
+  'Dubai Marina',
+  'Palm Jumeirah',
+  'Business Bay',
+  'JVC',
+  'Dubai Hills',
+  'Arabian Ranches',
+  'JBR',
+  'Al Barsha',
+  'Deira',
+];
+
+const budgetRanges = [
+  { value: '0-500000', label: 'Up to AED 500K' },
+  { value: '500000-1000000', label: 'AED 500K - 1M' },
+  { value: '1000000-2000000', label: 'AED 1M - 2M' },
+  { value: '2000000-5000000', label: 'AED 2M - 5M' },
+  { value: '5000000-10000000', label: 'AED 5M - 10M' },
+  { value: '10000000+', label: 'AED 10M+' },
+];
+
 export default function Landing() {
   const navigate = useNavigate();
+  const [propertyType, setPropertyType] = useState('buy');
+  const [budget, setBudget] = useState('');
+  const [area, setArea] = useState('');
+
+  const handleHeroSearch = () => {
+    const params = new URLSearchParams();
+    if (area) params.set('location', area);
+    if (budget) params.set('budget', budget);
+    if (propertyType) params.set('purpose', propertyType);
+    navigate(`/properties${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   return (
     <Layout>
@@ -136,26 +175,23 @@ export default function Landing() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 relative z-10 pt-20">
+        <div className="container mx-auto px-4 relative z-10 pt-24 pb-16 sm:pt-20 sm:pb-0">
           <div className="max-w-3xl">
-            <Badge className="bg-gold/20 text-gold border-0 mb-6 animate-fade-in">
-              <Sparkles className="h-3 w-3 mr-1" />
-              AI-Powered Real Estate Platform
-            </Badge>
             
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-6 animate-fade-in-up">
+            <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 sm:mb-6 animate-fade-in-up">
               Find Your Perfect
               <span className="block text-gold">Property Investment</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-primary-foreground/80 mb-8 max-w-xl animate-fade-in-up animation-delay-200">
+            <p className="text-base sm:text-xl text-primary-foreground/80 mb-6 sm:mb-8 max-w-xl animate-fade-in-up animation-delay-200">
               Discover premium properties with AI-powered insights, real-time analytics, and personalized recommendations tailored to your goals.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-12 animate-fade-in-up animation-delay-300">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10 sm:mb-12 animate-fade-in-up animation-delay-300 items-stretch sm:items-center">
               <Button
                 variant="gold"
                 size="xl"
+                className="w-full sm:w-auto"
                 onClick={() => navigate("/properties")}
               >
                 Explore Properties
@@ -164,20 +200,97 @@ export default function Landing() {
               <Button
                 variant="hero-outline"
                 size="xl"
+                className="w-full sm:w-auto"
+                onClick={() => navigate("/properties?type=deals")}
+              >
+                Explore Deals
+              </Button>
+              <Button
+                variant="hero-outline"
+                size="xl"
+                className="w-full sm:w-auto"
                 onClick={() => navigate("/onboarding")}
               >
                 Get Started Free
               </Button>
             </div>
 
+            {/* Property Search Bar */}
+            <div
+              className="max-w-4xl w-full bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 mb-12 animate-fade-in-up animation-delay-300 border border-gold/20"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Property Type */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gold/80">Property Type</label>
+                  <Select value={propertyType} onValueChange={setPropertyType}>
+                    <SelectTrigger className="bg-white/20 border-gold/30 text-primary-foreground h-12">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="buy">Buy</SelectItem>
+                      <SelectItem value="rent">Rent</SelectItem>
+                      <SelectItem value="invest">Invest</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Budget */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gold/80">Budget</label>
+                  <Select value={budget} onValueChange={setBudget}>
+                    <SelectTrigger className="bg-white/20 border-gold/30 text-primary-foreground h-12">
+                      <SelectValue placeholder="Select budget" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {budgetRanges.map((range) => (
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Dubai Area */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gold/80">Dubai Area</label>
+                  <Select value={area} onValueChange={setArea}>
+                    <SelectTrigger className="bg-white/20 border-gold/30 text-primary-foreground h-12">
+                      <SelectValue placeholder="Select area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dubaiAreas.map((areaName) => (
+                        <SelectItem key={areaName} value={areaName}>
+                          {areaName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Search Button */}
+                <div className="flex items-end">
+                  <Button
+                    variant="gold"
+                    onClick={handleHeroSearch}
+                    className="w-full h-12 text-lg font-semibold"
+                  >
+                    <Search className="h-5 w-5 mr-2" />
+                    Search
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {/* Stats */}
-            <div className="flex flex-wrap gap-8 animate-fade-in-up animation-delay-400">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 sm:gap-8 animate-fade-in-up animation-delay-400">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center sm:text-left">
-                  <p className="font-display text-2xl sm:text-3xl font-bold text-gold">
+                  <p className="font-display text-xl sm:text-3xl font-bold text-gold">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-primary-foreground/60">{stat.label}</p>
+                  <p className="text-xs sm:text-sm text-primary-foreground/60">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -190,7 +303,7 @@ export default function Landing() {
       <DubaiLocationCards />
 
       {/* Search Bar */}
-      <section className="py-12 bg-secondary">
+      <section className="py-10 sm:py-12 bg-secondary">
         <div className="container mx-auto px-4">
           <SearchFilters
             variant="hero"
@@ -214,20 +327,28 @@ export default function Landing() {
       {/* About Section */}
       <AboutSection />
 
-      {/* Features */}
-      <section className="py-20 bg-primary text-primary-foreground">
+      {/* Why PropertyX - Merged Section */}
+      <section className="py-14 sm:py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="font-display text-2xl sm:text-4xl font-bold mb-4">
               Why Choose PropertyX?
             </h2>
-            <p className="text-primary-foreground/70 max-w-2xl mx-auto">
-              Experience the future of real estate with our cutting-edge platform
+            <p className="text-primary-foreground/70 max-w-2xl mx-auto text-sm sm:text-base">
+              Everything that sets us apart — in one place
             </p>
           </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {[
+              { icon: Shield, title: "Rigorous Vetting", description: "Every partner undergoes comprehensive due diligence before joining our platform." },
+              { icon: Users, title: "Direct Access", description: "Connect directly with project developers and builders, no middlemen." },
+              { icon: Star, title: "Premium Selection", description: "Carefully curated properties that meet our high standards." },
+              { icon: Handshake, title: "No Commissions", description: "We don't charge commissions or hidden fees — ever." },
+              { icon: TrendingUp, title: "AI-Powered Analytics", description: "Get instant ROI estimates, market trends, and investment insights powered by advanced AI." },
+              { icon: MessageSquare, title: "InvestX AI Advisor", description: "Ask questions about any property and get intelligent responses instantly." },
+              { icon: Building2, title: "Premium Properties", description: "Access exclusive off-market deals and luxury developments across the UAE." },
+              { icon: Sparkles, title: "Smart Recommendations", description: "Personalized property matches based on your goals, budget, and lifestyle." },
+            ].map((feature, index) => (
               <div
                 key={feature.title}
                 className="text-center animate-fade-in-up"
@@ -248,26 +369,26 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <ContactSection />
+      {/* Mortgage CTA Section */}
+      <MortgageCTASection />
 
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-br from-gold/10 via-secondary to-gold/5 rounded-3xl p-8 lg:p-16 text-center">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
+          <div className="bg-gradient-to-br from-gold/10 via-secondary to-gold/5 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-16 text-center">
+            <h2 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-4">
               Ready to Find Your Dream Property?
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+            <p className="text-muted-foreground max-w-xl mx-auto mb-8 text-sm sm:text-base">
               Join thousands of satisfied clients who found their perfect investment with PropertyX.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="gold" size="lg" onClick={() => navigate("/auth?mode=signup")}>
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
+              <Button variant="gold" size="lg" className="w-full sm:w-auto" onClick={() => navigate("/auth?mode=signup")}>
                 Create Free Account
               </Button>
-              <Button variant="outline" size="lg" onClick={() => navigate("/chat")}>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => navigate("/chat")}>
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Try PropertyX Chat
+                InvestX AI Advisor Chat
               </Button>
             </div>
             <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-muted-foreground">
@@ -287,6 +408,23 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Contact Section */}
+      <ContactSection />
+
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 left-4 z-50">
+          <button
+            onClick={async () => {
+              const ok = await seedProperties();
+              alert(ok ? 'Properties seeded!' : 'Seed failed - check console');
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg"
+          >
+            Seed DB (dev only)
+          </button>
+        </div>
+      )}
     </Layout>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { Grid3X3, List, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/hooks/useFavorites";
+import { SAMPLE_PROPERTIES } from "@/data/propertyData";
 
 interface SearchFiltersState {
   location: string;
@@ -60,51 +61,87 @@ export default function Properties() {
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
+  const loadMockData = () => {
+    const mapped = SAMPLE_PROPERTIES.map((p) => ({
+      id: p.id,
+      title: p.name,
+      location: p.location,
+      price: parseInt(p.price.replace(/[^0-9]/g, "")) || 500000,
+      bedrooms: p.bedrooms,
+      bathrooms: p.bathrooms,
+      area: p.area,
+      images: [p.imageUrl],
+      property_type: p.type,
+      featured: p.aiScore >= 9,
+      roi_estimate: parseFloat(p.expectedRoi),
+      status: "available",
+      created_at: new Date().toISOString(),
+    }));
+    setProperties(mapped);
+    setTotalCount(mapped.length);
+    setLoading(false);
+  };
 
   useEffect(() => {
     const fetchProperties = async () => {
       setLoading(true);
 
-      // Build base query for count
-      let countQuery = supabase.from("properties").select("*", { count: "exact", head: true }).eq("status", "available");
-      let query = supabase.from("properties").select("*").eq("status", "available");
+      try {
+        const timeoutPromise = new Promise<"timeout">((resolve) =>
+          setTimeout(() => resolve("timeout"), 4000)
+        );
 
-      // Apply filters to both queries
-      const applyFilters = (q: any) => {
-        if (filters.location.trim()) q = q.ilike("location", `%${filters.location.trim()}%`);
-        if (filters.propertyType !== "all") q = q.eq("property_type", filters.propertyType as any);
+        let query = supabase
+          .from("properties")
+          .select("*")
+          .eq("status", "available");
+
+        if (filters.location.trim())
+          query = query.ilike("location", `%${filters.location.trim()}%`);
+        if (filters.propertyType !== "all")
+          query = query.eq("property_type", filters.propertyType as any);
         if (filters.priceRange !== "all") {
           if (filters.priceRange.endsWith("+")) {
-            q = q.gte("price", parseInt(filters.priceRange));
+            query = query.gte("price", parseInt(filters.priceRange));
           } else {
             const [min, max] = filters.priceRange.split("-").map(Number);
-            q = q.gte("price", min).lte("price", max);
+            query = query.gte("price", min).lte("price", max);
           }
         }
-        if (filters.bedrooms !== "all") q = q.gte("bedrooms", parseInt(filters.bedrooms));
-        return q;
-      };
+        if (filters.bedrooms !== "all")
+          query = query.gte("bedrooms", parseInt(filters.bedrooms));
 
-      countQuery = applyFilters(countQuery);
-      query = applyFilters(query);
+        switch (sortBy) {
+          case "price-low": query = query.order("price", { ascending: true }); break;
+          case "price-high": query = query.order("price", { ascending: false }); break;
+          case "roi": query = query.order("roi_estimate", { ascending: false, nullsFirst: false }); break;
+          default: query = query.order("created_at", { ascending: false });
+        }
 
-      // Sort
-      switch (sortBy) {
-        case "price-low": query = query.order("price", { ascending: true }); break;
-        case "price-high": query = query.order("price", { ascending: false }); break;
-        case "roi": query = query.order("roi_estimate", { ascending: false, nullsFirst: false }); break;
-        default: query = query.order("created_at", { ascending: false });
+        const from = page * PAGE_SIZE;
+        query = query.range(from, from + PAGE_SIZE - 1);
+
+        const result = await Promise.race([query, timeoutPromise]);
+
+        if (result === "timeout") {
+          loadMockData();
+          return;
+        }
+
+        const { data, error } = result as { data: any[]; error: any };
+
+        if (error || !data || data.length === 0) {
+          loadMockData();
+        } else {
+          setProperties(data);
+          setTotalCount(data.length);
+          setLoading(false);
+        }
+      } catch {
+        loadMockData();
       }
-
-      // Paginate
-      const from = page * PAGE_SIZE;
-      query = query.range(from, from + PAGE_SIZE - 1);
-
-      const [{ count }, { data }] = await Promise.all([countQuery, query]);
-      setTotalCount(count || 0);
-      setProperties(data || []);
-      setLoading(false);
     };
+
     fetchProperties();
   }, [sortBy, filters, page]);
 
@@ -126,7 +163,7 @@ export default function Properties() {
         <div className="container mx-auto px-4">
           <BreadcrumbNav items={[{ label: "Properties" }]} />
           <div className="mb-8">
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-2">
+            <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-2">
               Find Your Perfect Property
             </h1>
             <p className="text-muted-foreground">

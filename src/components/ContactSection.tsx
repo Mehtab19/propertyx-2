@@ -44,23 +44,23 @@ const ContactSection = () => {
   ];
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact" className="py-14 sm:py-20 bg-background">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-10 sm:mb-12">
+          <h2 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-4">
             Contact Us
           </h2>
           <div className="w-16 h-1 bg-gold mx-auto mb-4" />
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-10">
           {/* Contact Form */}
-          <div className="bg-card rounded-2xl p-8 shadow-card border border-border">
-            <h3 className="text-2xl font-bold text-foreground mb-6">Send us a Message</h3>
+          <div className="bg-card rounded-2xl p-5 sm:p-8 shadow-card border border-border">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-6">Send us a Message</h3>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <Label>Full Name *</Label>
@@ -110,8 +110,8 @@ const ContactSection = () => {
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <div className="bg-card rounded-2xl p-8 shadow-card border border-border">
-              <h3 className="text-2xl font-bold text-foreground mb-6">Contact Information</h3>
+            <div className="bg-card rounded-2xl p-5 sm:p-8 shadow-card border border-border">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-6">Contact Information</h3>
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start gap-4">
@@ -127,19 +127,7 @@ const ContactSection = () => {
               </div>
             </div>
 
-            {/* Map */}
-            <div className="bg-card rounded-2xl overflow-hidden shadow-card border border-border h-64">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8193055721146!2d103.85418951475392!3d1.2838829990628!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19a0e5a4a0a5%3A0xc7b0b0b0b0b0b0b0!2sSingapore!5e0!3m2!1sen!2sus!4v1620000000000!5m2!1sen!2sus"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Location Map"
-              />
-            </div>
+
           </div>
         </div>
       </div>

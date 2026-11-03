@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 
 const authSchema = z.object({
@@ -28,19 +29,25 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        navigate("/onboarding");
-      }
-    });
+ useEffect(() => {
+  // If already logged in, redirect away from auth page
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user) {
+      navigate("/dashboard");
+    }
+  });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/onboarding");
+  // Only redirect on actual SIGNED_IN event, and clean up on unmount
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        navigate("/dashboard");
       }
-    });
-  }, [navigate]);
+    }
+  );
+
+  return () => subscription.unsubscribe();
+}, [navigate]);
 
   const validate = () => {
     try {
@@ -61,12 +68,14 @@ export default function Auth() {
     }
   };
 
+  const { signUp, signIn } = useAuth();
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await signIn(email, password);
 
     if (error) {
       toast({
@@ -85,16 +94,8 @@ export default function Auth() {
     if (!validate()) return;
 
     setIsLoading(true);
-    const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: { full_name: fullName },
-      },
-    });
+    const { error } = await signUp(email, password, fullName, 'buyer');
 
     if (error) {
       let message = error.message;

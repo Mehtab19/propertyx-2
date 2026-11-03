@@ -1,145 +1,88 @@
-import { Link } from "react-router-dom";
-import { Building2, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-
-const footerLinks = {
-  company: [
-    { label: "About Us", href: "/about" },
-    { label: "Careers", href: "/careers" },
-    { label: "Press", href: "/press" },
-    { label: "Contact", href: "/contact" },
-  ],
-  resources: [
-    { label: "Mortgage Hub", href: "/mortgage" },
-    { label: "Property Guide", href: "/guide" },
-    { label: "Market Insights", href: "/insights" },
-    { label: "FAQ", href: "/faq" },
-  ],
-  legal: [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
-    { label: "Disclaimer", href: "/disclaimer" },
-  ],
-};
-
-const socialLinks = [
-  { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-];
+import { Link } from 'react-router-dom';
+import { Building2, MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-primary text-primary-foreground pt-16 pb-8">
       <div className="container mx-auto px-4">
-        {/* Main Footer */}
-        <div className="py-12 lg:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Brand Section */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <Building2 className="h-8 w-8 text-gold" />
-              <div className="flex flex-col">
-                <span className="font-display text-xl font-bold">PrimeX Estate</span>
-                <span className="text-xs text-primary-foreground/60">PropertyX</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          {/* Company Info */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gold/20 rounded-lg flex items-center justify-center font-extrabold text-lg text-gold">
+                PX
               </div>
-            </Link>
-            <p className="text-primary-foreground/70 text-sm mb-6 max-w-sm">
-              Your trusted partner in finding the perfect property. We combine cutting-edge technology with personalized service to deliver exceptional real estate experiences.
+              <div className="flex flex-col">
+                <h3 className="text-xl font-extrabold leading-tight">PrimeX Estate</h3>
+                <span className="text-xs font-semibold text-gold tracking-wider">PropertyX</span>
+              </div>
+            </div>
+            <p className="text-primary-foreground/70 text-sm mb-6">
+              Connecting you to premium properties through data-driven real estate advisory powered by PropertyX Intelligence AI engine.
             </p>
-            <div className="space-y-3">
-              <a
-                href="mailto:hello@primexestate.com"
-                className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-gold transition-colors"
-              >
-                <Mail className="h-4 w-4" />
-                hello@primexestate.com
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
+                <Facebook className="w-5 h-5 text-gold" />
               </a>
-              <a
-                href="tel:+1234567890"
-                className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-gold transition-colors"
-              >
-                <Phone className="h-4 w-4" />
-                +1 (234) 567-890
+              <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
+                <Twitter className="w-5 h-5 text-gold" />
               </a>
-              <p className="flex items-center gap-2 text-sm text-primary-foreground/70">
-                <MapPin className="h-4 w-4" />
-                123 Property Lane, Real Estate City
-              </p>
+              <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
+                <Linkedin className="w-5 h-5 text-gold" />
+              </a>
+              <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
+                <Instagram className="w-5 h-5 text-gold" />
+              </a>
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Quick Links */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Company</h3>
+            <h4 className="text-lg font-bold mb-6">Quick Links</h4>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-gold transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Home</Link></li>
+              <li><Link to="/properties" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Properties</Link></li>
+              <li><Link to="/mortgage" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Mortgage Hub</Link></li>
+              <li><Link to="/schedule-meeting" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Schedule Meeting</Link></li>
+              <li><Link to="/chat" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">InvestX AI Advisor</Link></li>
             </ul>
           </div>
 
-          {/* Resources Links */}
+          {/* Legal */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Resources</h3>
+            <h4 className="text-lg font-bold mb-6">Legal</h4>
             <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-gold transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/privacy" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Terms of Service</Link></li>
+              <li><Link to="/contact" className="text-primary-foreground/70 hover:text-gold transition-colors text-sm">Contact</Link></li>
             </ul>
           </div>
 
-          {/* Legal Links */}
+          {/* Contact Info */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-gold transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="text-lg font-bold mb-6">Contact Us</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 mt-0.5 text-gold flex-shrink-0" />
+                <span className="text-primary-foreground/70 text-sm">123 Business District, Suite 100, Dubai, UAE</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-gold flex-shrink-0" />
+                <span className="text-primary-foreground/70 text-sm">+971 50 123 4567</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-gold flex-shrink-0" />
+                <span className="text-primary-foreground/70 text-sm">info@primexestate.com</span>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-6 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-primary-foreground/10 pt-8 text-center">
           <p className="text-sm text-primary-foreground/50">
             © {new Date().getFullYear()} PrimeX Estate. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-foreground/50 hover:text-gold transition-colors"
-                aria-label={social.label}
-              >
-                <social.icon className="h-5 w-5" />
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </footer>

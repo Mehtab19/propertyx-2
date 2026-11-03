@@ -35,6 +35,7 @@ import {
   PlusCircle,
   LayoutDashboard,
   Heart,
+  CalendarCheck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,12 +48,16 @@ interface NavItem {
   roles?: UserRole[];
 }
 
-const navItems: NavItem[] = [
+const publicNavItems: NavItem[] = [
   { label: "Properties", href: "/properties", icon: <Home className="h-4 w-4" /> },
-  { label: "Saved", href: "/saved", icon: <Heart className="h-4 w-4" /> },
-  { label: "Investment Advisor", href: "/chat", icon: <MessageSquare className="h-4 w-4" /> },
-  { label: "Compare", href: "/compare", icon: <GitCompare className="h-4 w-4" /> },
+  { label: "InvestX AI Advisor", href: "/chat", icon: <MessageSquare className="h-4 w-4" /> },
   { label: "Mortgage Hub", href: "/mortgage", icon: <Calculator className="h-4 w-4" /> },
+  { label: "Schedule Meeting", href: "/schedule-meeting", icon: <CalendarCheck className="h-4 w-4" /> },
+];
+
+const authNavItems: NavItem[] = [
+  { label: "Saved", href: "/saved", icon: <Heart className="h-4 w-4" /> },
+  { label: "Compare", href: "/compare", icon: <GitCompare className="h-4 w-4" /> },
 ];
 
 const roleNavItems: NavItem[] = [
@@ -141,11 +146,12 @@ export function Navbar() {
                 }`}
               />
               <span
-                className={`font-display text-xl font-bold transition-colors ${
+                className={`font-display text-lg sm:text-xl font-bold transition-colors ${
                   isScrolled || !isLanding ? "text-foreground" : "text-primary-foreground"
                 }`}
               >
-                PrimeX Estate
+                <span className="sm:hidden">PrimeX</span>
+                <span className="hidden sm:inline">PrimeX Estate</span>
               </span>
             </div>
             <span
@@ -161,15 +167,15 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
+            {[...publicNavItems, ...(user ? authNavItems : [])].map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-secondary ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   location.pathname === item.href
                     ? "bg-secondary text-foreground"
                     : isScrolled || !isLanding
-                    ? "text-muted-foreground hover:text-foreground"
+                    ? "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
                 }`}
               >
@@ -183,12 +189,12 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             {/* Search Button */}
             <Button
-              variant="ghost"
+              variant={isScrolled || !isLanding ? "ghost" : "hero-outline"}
               size="icon"
               className={`hidden lg:flex ${
                 isScrolled || !isLanding
                   ? "text-muted-foreground hover:text-foreground"
-                  : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  : "border-none"
               }`}
               onClick={() => navigate("/properties")}
             >
@@ -199,11 +205,9 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
+                    variant={isScrolled || !isLanding ? "ghost" : "hero-outline"}
                     className={`flex items-center gap-2 ${
-                      isScrolled || !isLanding
-                        ? ""
-                        : "text-primary-foreground hover:bg-primary-foreground/10"
+                      isScrolled || !isLanding ? "" : "border-none"
                     }`}
                   >
                     <Avatar className="h-8 w-8">
@@ -266,18 +270,16 @@ export function Navbar() {
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant={isScrolled || !isLanding ? "ghost" : "hero-outline"}
                   size="icon"
                   className={`lg:hidden ${
-                    isScrolled || !isLanding
-                      ? ""
-                      : "text-primary-foreground hover:bg-primary-foreground/10"
+                    isScrolled || !isLanding ? "" : "border-none"
                   }`}
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
+              <SheetContent side="right" className="w-[min(100vw-2rem,20rem)] sm:w-80">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
                     <Building2 className="h-6 w-6 text-primary" />
@@ -285,7 +287,7 @@ export function Navbar() {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 mt-8">
-                  {navItems.map((item) => (
+                  {[...publicNavItems, ...(user ? authNavItems : [])].map((item) => (
                     <Link
                       key={item.href}
                       to={item.href}

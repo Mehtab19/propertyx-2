@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/hooks/useFavorites";
+import { getPropertyById } from "@/data/propertyData";
 
 const amenityIcons: Record<string, any> = {
   Parking: Car, Pool: Waves, Gym: Dumbbell, Security: Shield, Terrace: Trees,
@@ -36,9 +37,38 @@ export default function PropertyDetail() {
   useEffect(() => {
     const fetch = async () => {
       if (!id) return;
-      const { data } = await supabase.from("properties").select("*").eq("id", id).single();
-      setProperty(data);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase.from("properties").select("*").eq("id", id).single();
+        if (error || !data) {
+          throw new Error("Not found in db");
+        }
+        setProperty(data);
+      } catch (err) {
+        // Fallback to local mock data
+        const localProp = getPropertyById(id);
+        if (localProp) {
+          setProperty({
+            id: localProp.id,
+            title: localProp.title,
+            location: localProp.location,
+            price: parseInt(localProp.price.replace(/[^0-9]/g, "")) || 500000,
+            bedrooms: localProp.bedrooms,
+            bathrooms: localProp.bathrooms,
+            area: parseInt(localProp.area.replace(/[^0-9]/g, "")),
+            images: [localProp.imageUrl, ...(localProp.gallery || [])],
+            property_type: localProp.type,
+            featured: localProp.aiScore >= 9,
+            roi_estimate: parseFloat(localProp.expectedRoi),
+            rental_yield: parseFloat(localProp.expectedRoi) - 2, // approximation
+            description: localProp.description,
+            amenities: localProp.features || [],
+          });
+        } else {
+          setProperty(null);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
   }, [id]);
@@ -115,7 +145,7 @@ export default function PropertyDetail() {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div>
-                <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">{property.title}</h1>
+                <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3 break-words">{property.title}</h1>
                 <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
                   <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{property.location}</span>
                   {property.year_built && <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Built {property.year_built}</span>}
@@ -140,10 +170,10 @@ export default function PropertyDetail() {
 
               {/* Tabs */}
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                  <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent">Overview</TabsTrigger>
-                  <TabsTrigger value="analysis" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent">Investment Analysis</TabsTrigger>
-                  {amenities.length > 0 && <TabsTrigger value="amenities" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent">Amenities</TabsTrigger>}
+                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent overflow-x-auto flex-nowrap">
+                  <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent shrink-0 text-sm">Overview</TabsTrigger>
+                  <TabsTrigger value="analysis" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent shrink-0 text-sm">Investment Analysis</TabsTrigger>
+                  {amenities.length > 0 && <TabsTrigger value="amenities" className="rounded-none border-b-2 border-transparent data-[state=active]:border-gold data-[state=active]:bg-transparent shrink-0 text-sm">Amenities</TabsTrigger>}
                 </TabsList>
 
                 <TabsContent value="overview" className="pt-6">

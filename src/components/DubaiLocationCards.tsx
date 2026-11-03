@@ -1,6 +1,7 @@
 /**
  * UAE State Strip Cards Component
- * Vertical strip cards for UAE states with hover effects
+ * Vertical strip cards for UAE states with hover effects on desktop,
+ * swipeable cards on mobile.
  */
 
 import { useNavigate } from 'react-router-dom';
@@ -63,25 +64,53 @@ const DubaiLocationCards = () => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section className="py-20 bg-background overflow-hidden">
-      <div className="container mx-auto px-4 mb-10">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Explore the UAE</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+    <section className="py-14 sm:py-20 bg-background overflow-hidden">
+      <div className="container mx-auto px-4 mb-8 sm:mb-10">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3 sm:mb-4">
+            Explore the UAE Properties
+          </h2>
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
             Discover premium properties across all seven emirates
           </p>
         </div>
       </div>
 
-      {/* Edge-to-edge panoramic strip */}
-      <div className="flex w-full h-[500px] overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      {/* Mobile: horizontal snap carousel */}
+      <div className="md:hidden flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {uaeStates.map((state) => (
+          <button
+            key={state.slug}
+            onClick={() => navigate(`/properties?location=${encodeURIComponent(state.name)}`)}
+            className="relative shrink-0 w-[78vw] max-w-[300px] h-56 rounded-2xl overflow-hidden snap-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            aria-label={`View properties in ${state.name}`}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${state.image})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
+              <h3 className="text-xl font-bold text-white tracking-wide mb-1">
+                {state.name}
+              </h3>
+              <p className="text-white/70 text-sm">
+                {state.propertyCount} Properties
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Desktop: edge-to-edge panoramic strip */}
+      <div className="hidden md:flex w-full h-[420px] lg:h-[500px] overflow-hidden">
         {uaeStates.map((state, idx) => (
           <button
             key={state.slug}
-            onClick={() => navigate(`/state/${state.slug}`)}
+            onClick={() => navigate(`/properties?location=${encodeURIComponent(state.name)}`)}
             onMouseEnter={() => setHoveredIdx(idx)}
             onMouseLeave={() => setHoveredIdx(null)}
-            className="relative overflow-hidden focus:outline-none"
+            className="relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             style={{
               flex: hoveredIdx === idx ? 1.6 : hoveredIdx !== null ? 0.85 : 1,
               transition: 'flex 0.5s cubic-bezier(0.4,0,0.2,1)',
@@ -89,14 +118,11 @@ const DubaiLocationCards = () => {
             }}
             aria-label={`View properties in ${state.name}`}
           >
-            {/* Background Image */}
             <div
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
               style={{ backgroundImage: `url(${state.image})` }}
             />
-            {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            {/* State Info */}
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <h3 className="text-xl md:text-2xl font-bold text-white tracking-wide mb-1">
                 {state.name}
@@ -108,10 +134,6 @@ const DubaiLocationCards = () => {
           </button>
         ))}
       </div>
-
-      <style>{`
-        .flex::-webkit-scrollbar { display: none; }
-      `}</style>
     </section>
   );
 };

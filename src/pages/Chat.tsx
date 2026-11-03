@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import {
   Send, Sparkles, Building2, TrendingUp, Calculator, MapPin, Loader2,
@@ -56,7 +56,9 @@ export default function Chat() {
   const [showDigitalTwin, setShowDigitalTwin] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 768 : false
+  );
   const [historySearch, setHistorySearch] = useState("");
   const [twinForm, setTwinForm] = useState({
     risk_tolerance: "Moderate",
@@ -319,7 +321,7 @@ export default function Chat() {
         {/* Digital Twin Profile Panel */}
         {showDigitalTwin && isInvestor && (
           <div className="container mx-auto px-4 py-4">
-            <div className="max-w-3xl mx-auto bg-card border border-border rounded-2xl p-6 space-y-5">
+            <div className="max-w-3xl mx-auto bg-card border border-border rounded-2xl p-4 sm:p-6 space-y-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
@@ -404,10 +406,17 @@ export default function Chat() {
           </div>
         )}
 
-        <div className="flex-1 flex overflow-hidden">
-          {/* Conversation History Sidebar */}
+        <div className="flex-1 flex overflow-hidden relative">
+          {/* Conversation History Sidebar — overlay on mobile */}
           {user && showHistory && (
-            <div className="w-64 shrink-0 border-r border-border bg-card flex flex-col">
+            <>
+            <button
+              type="button"
+              className="absolute inset-0 z-20 bg-black/40 md:hidden"
+              aria-label="Close history"
+              onClick={() => setShowHistory(false)}
+            />
+            <div className="absolute md:static inset-y-0 left-0 z-30 w-[min(100%,16rem)] shrink-0 border-r border-border bg-card flex flex-col shadow-lg md:shadow-none">
               <div className="p-3 border-b border-border space-y-2">
                 <Button variant="gold" size="sm" className="w-full gap-2" onClick={startNewConversation}>
                   <Plus className="h-4 w-4" /> New Chat
@@ -455,6 +464,7 @@ export default function Chat() {
                 </div>
               </ScrollArea>
             </div>
+            </>
           )}
 
           {/* Main Chat Area */}
@@ -464,7 +474,7 @@ export default function Chat() {
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center mb-6">
                   <Sparkles className="h-8 w-8 text-accent-foreground" />
                 </div>
-                <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2 text-center">
                   {isInvestor ? "Your Personalized Investor Advisor" : "PropertyX Investment Advisor"}
                 </h1>
                 <p className="text-muted-foreground text-center max-w-md mb-2">

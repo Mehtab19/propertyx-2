@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { BreadcrumbNav } from "@/components/ui/breadcrumb-nav";
 import { Layout } from "@/components/layout/Layout";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";

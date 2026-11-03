@@ -140,7 +140,7 @@ export function SearchFilters({
           : "bg-card rounded-xl shadow-card p-4"
       }`}
     >
-      <div className={`grid gap-3 ${isHero ? "lg:grid-cols-5" : "lg:grid-cols-5"}`}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {/* Location Input with autocomplete + clear */}
         <div className="relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

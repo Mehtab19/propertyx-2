@@ -79,7 +79,7 @@ export function PropertyCard({
             <div className="flex items-center gap-1"><Bath className="h-4 w-4" /><span>{bathrooms}</span></div>
           )}
           {area !== undefined && area !== null && (
-            <div className="flex items-center gap-1"><Square className="h-4 w-4" /><span>{area} sqft</span></div>
+            <div className="flex items-center gap-1"><Square className="h-4 w-4" /><span>{typeof area === 'string' && area.includes('sqft') ? area : `${area} sqft`}</span></div>
           )}
         </div>
       </CardContent>

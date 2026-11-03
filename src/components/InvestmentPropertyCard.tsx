@@ -7,16 +7,30 @@ import { useNavigate } from "react-router-dom";
 
 const typeColors: Record<string, string> = {
   residential: "bg-emerald-500 text-white",
+  apartment: "bg-emerald-500 text-white",
+  villa: "bg-emerald-500 text-white",
+  townhouse: "bg-emerald-500 text-white",
+  studio: "bg-emerald-500 text-white",
   commercial: "bg-primary text-primary-foreground",
+  office: "bg-primary text-primary-foreground",
   luxury: "bg-gold text-accent-foreground",
+  penthouse: "bg-gold text-accent-foreground",
   construction: "bg-amber-500 text-white",
+  land: "bg-amber-500 text-white",
 };
 
 const typeLabels: Record<string, string> = {
   residential: "Residential",
+  apartment: "Apartment",
+  villa: "Villa",
+  townhouse: "Townhouse",
+  studio: "Studio",
   commercial: "Commercial",
+  office: "Office",
   luxury: "Luxury",
+  penthouse: "Penthouse",
   construction: "Under Construction",
+  land: "Land",
 };
 
 export function InvestmentPropertyCard({ property }: { property: Property }) {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { InvestmentPropertyCard } from "./InvestmentPropertyCard";
 import { SAMPLE_PROPERTIES } from "@/data/propertyData";
+import { SearchFilters } from "@/components/property/SearchFilters";
 
 const filters = [
   { value: "all", label: "All Projects" },
@@ -22,7 +23,6 @@ export function PropertiesSection() {
   return (
     <section className="pt-12 pb-20 bg-secondary">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <div className="text-center mb-8">
           <Badge className="bg-gold/10 text-gold-dark border-0 mb-4">
             Featured Listings
@@ -35,13 +35,16 @@ export function PropertiesSection() {
           </p>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
+        <div className="mb-8">
+          <SearchFilters variant="inline" onSearch={() => {}} />
+        </div>
+
+        <div className="flex gap-2 sm:gap-3 mb-8 sm:mb-10 overflow-x-auto pb-2 justify-start sm:justify-center sm:flex-wrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setActiveFilter(filter.value)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+              className={`shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-200 border ${
                 activeFilter === filter.value
                   ? "bg-primary text-primary-foreground border-primary shadow-md"
                   : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
@@ -52,7 +55,6 @@ export function PropertiesSection() {
           ))}
         </div>
 
-        {/* Grid */}
         {filteredProperties.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {filteredProperties.map((property, index) => (
